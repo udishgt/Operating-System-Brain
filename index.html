@@ -452,6 +452,9 @@ footer{border-top:1px solid var(--border);padding:36px 80px;display:flex;justify
 </div>
 
 <script>
+// ─── CONFIG ───────────────────────────────────────────────────
+const GROQ_API_KEY = "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"; // ← paste your key here
+
 // ─── CURSOR ──────────────────────────────────────────────────
 const cur = document.getElementById('cur');
 const curR = document.getElementById('cur-r');
@@ -558,18 +561,17 @@ Output format:
   ${hasFiles?'(Sources = filenames + relevant sections)':'(Sources = credible references, docs, papers)'}`;
 
   try{
-    const res=await fetch("https://api.anthropic.com/v1/messages",{
+    const res=await fetch("https://api.groq.com/openai/v1/chat/completions",{
       method:"POST",
-      headers:{"Content-Type":"application/json"},
+      headers:{"Content-Type":"application/json","Authorization":`Bearer ${GROQ_API_KEY}`},
       body:JSON.stringify({
-        model:"claude-sonnet-4-20250514",
+        model:"llama-3.3-70b-versatile",
         max_tokens:1200,
-        system:systemPrompt,
-        messages:[{role:"user",content:q}]
+        messages:[{role:"system",content:systemPrompt},{role:"user",content:q}]
       })
     });
     const data=await res.json();
-    const full=data.content[0].text;
+    const full=data.choices[0].message.content;
     let answer=full,sources=[];
     if(full.includes('SOURCES:')){
       const p=full.split('SOURCES:');
