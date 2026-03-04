@@ -245,8 +245,30 @@ footer{border-top:1px solid var(--border);padding:36px 80px;display:flex;justify
     <a href="#" onclick="showPage('system',this)">SYSTEM</a>
     <a href="#" onclick="showPage('docs',this)">DOCS</a>
     <button class="nbtn" onclick="showPage('system',document.querySelectorAll('.nav-l a')[1])">LAUNCH OSB</button>
+    <button class="nbtn" style="background:transparent;border:1px solid var(--border-b);color:var(--cyan);margin-left:8px;" onclick="openSettings()">⚙ API KEY</button>
   </div>
 </nav>
+
+<!-- SETTINGS MODAL -->
+<div id="settings-modal" style="display:none;position:fixed;inset:0;z-index:9995;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);align-items:center;justify-content:center;">
+  <div style="background:var(--bg2);border:1px solid var(--border-b);padding:40px;max-width:480px;width:90%;position:relative;">
+    <div style="font-family:'Orbitron',monospace;font-size:18px;color:var(--cyan);margin-bottom:8px;letter-spacing:2px;">⚙ API CONFIGURATION</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--dim);margin-bottom:24px;">Your key is stored only in your browser. Never sent anywhere except Google.</div>
+    
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--cyan);margin-bottom:8px;letter-spacing:2px;">GEMINI API KEY</div>
+    <input id="settings-key-input" type="password" placeholder="Paste your Gemini API key here..."
+      style="width:100%;background:transparent;border:1px solid var(--border-b);padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--text);outline:none;margin-bottom:8px;"/>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim);margin-bottom:24px;">
+      Get free key at: <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--cyan);">aistudio.google.com/app/apikey</a>
+    </div>
+
+    <div style="display:flex;gap:12px;">
+      <button onclick="saveApiKey()" style="flex:1;background:var(--cyan);color:var(--bg);border:none;padding:12px;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:2px;font-weight:700;cursor:none;text-transform:uppercase;">SAVE KEY</button>
+      <button onclick="closeSettings()" style="flex:1;background:transparent;color:var(--text);border:1px solid var(--border-b);padding:12px;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:2px;cursor:none;text-transform:uppercase;">CANCEL</button>
+    </div>
+    <div id="settings-status" style="font-family:'Share Tech Mono',monospace;font-size:12px;margin-top:12px;text-align:center;"></div>
+  </div>
+</div>
 
 <!-- ═══════════ HOME ═══════════ -->
 <div id="home" class="page act">
@@ -453,7 +475,7 @@ footer{border-top:1px solid var(--border);padding:36px 80px;display:flex;justify
 
 <script>
 // ─── CONFIG ───────────────────────────────────────────────────
-const GEMINI_API_KEY = "your_gemini_key_here"; // ← paste your key here
+let GEMINI_API_KEY = localStorage.getItem('osb_gemini_key') || "";
 
 // ─── CURSOR ──────────────────────────────────────────────────
 const cur = document.getElementById('cur');
@@ -470,6 +492,35 @@ function showPage(id,el){
   if(el&&el.tagName==='A') el.classList.add('act');
   window.scrollTo(0,0);
 }
+// ─── SETTINGS MODAL ──────────────────────────────────────────
+function openSettings(){
+  const modal=document.getElementById('settings-modal');
+  modal.style.display='flex';
+  const inp=document.getElementById('settings-key-input');
+  inp.value=GEMINI_API_KEY||'';
+  document.getElementById('settings-status').textContent='';
+}
+function closeSettings(){
+  document.getElementById('settings-modal').style.display='none';
+}
+function saveApiKey(){
+  const key=document.getElementById('settings-key-input').value.trim();
+  if(!key){
+    document.getElementById('settings-status').style.color='#ff4444';
+    document.getElementById('settings-status').textContent='> Please enter a valid API key';
+    return;
+  }
+  GEMINI_API_KEY=key;
+  localStorage.setItem('osb_gemini_key',key);
+  document.getElementById('settings-status').style.color='var(--green)';
+  document.getElementById('settings-status').textContent='> Key saved successfully!';
+  setTimeout(()=>closeSettings(),1200);
+}
+// Close modal on backdrop click
+document.getElementById('settings-modal').addEventListener('click',function(e){
+  if(e.target===this) closeSettings();
+});
+
 function switchTab(id,el){
   document.querySelectorAll('.stab').forEach(t=>t.classList.remove('act'));
   document.querySelectorAll('.spanel').forEach(p=>p.classList.remove('act'));
@@ -518,6 +569,10 @@ let queryCount=3;
 async function submitQuery(){
   const inp=document.getElementById('qinput');
   const q=inp.value.trim(); if(!q)return;
+  if(!GEMINI_API_KEY){
+    openSettings();
+    return;
+  }
   const area=document.getElementById('query-area');
   const rb=document.getElementById('resp-block');
   const rt=document.getElementById('rtext');
@@ -561,17 +616,16 @@ Output format:
   ${hasFiles?'(Sources = filenames + relevant sections)':'(Sources = credible references, docs, papers)'}`;
 
   try{
-    const res=await fetch("https://api.groq.com/openai/v1/chat/completions",{
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,{
       method:"POST",
-      headers:{"Content-Type":"application/json","Authorization":`Bearer ${GROQ_API_KEY}`},
+      headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
-        model:"llama-3.3-70b-versatile",
-        max_tokens:1200,
-        messages:[{role:"system",content:systemPrompt},{role:"user",content:q}]
+        contents:[{parts:[{text: systemPrompt + "\n\nUSER: " + q}]}],
+        generationConfig:{maxOutputTokens:1200}
       })
     });
     const data=await res.json();
-    const full=data.choices[0].message.content;
+    const full=data.candidates[0].content.parts[0].text;
     let answer=full,sources=[];
     if(full.includes('SOURCES:')){
       const p=full.split('SOURCES:');
