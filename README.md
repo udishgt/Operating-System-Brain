@@ -64,6 +64,16 @@ LLM generates answer with source citations
 ```
 
 ---
+## Screenshots
+
+### Home
+![OSB Home](screenshots/home.png)
+
+### System Interface
+![OSB System](screenshots/system.png)
+
+### System Logs
+![OSB Logs](screenshots/logs.png)
 
 ## Getting Started
 
