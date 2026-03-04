@@ -616,7 +616,7 @@ Output format:
   ${hasFiles?'(Sources = filenames + relevant sections)':'(Sources = credible references, docs, papers)'}`;
 
   try{
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,{
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,{
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
@@ -625,6 +625,9 @@ Output format:
       })
     });
     const data=await res.json();
+    if(data.error){
+      throw new Error(data.error.message);
+    }
     const full=data.candidates[0].content.parts[0].text;
     let answer=full,sources=[];
     if(full.includes('SOURCES:')){
@@ -640,8 +643,8 @@ Output format:
     (function type(){if(i<answer.length){rt.textContent+=answer[i++];setTimeout(type,9);}})();
     addLog('SUCCESS',`Answered · ${sources.length} source(s) · ${hasFiles?'file mode':'knowledge mode'}`);
   }catch(err){
-    area.innerHTML=`<div class="qready" style="color:#ff4444;">Connection error — check network</div>`;
-    addLog('WARN','API connection failed: '+err.message);
+    area.innerHTML=`<div class="qready" style="color:#ff4444;">Error: ${err.message}</div>`;
+    addLog('WARN','API error: '+err.message);
   }
   btn.innerHTML='QUERY <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
   btn.disabled=false; inp.value='';
