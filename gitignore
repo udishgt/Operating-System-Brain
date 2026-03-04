@@ -1,0 +1,31 @@
+# ── SECRETS — NEVER COMMIT ──────────────
+.env
+*.env
+secrets.json
+
+# ── Python ───────────────────────────────
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# ── OSB Data (local vector store) ────────
+osb_data/
+*.index
+*.pkl
+
+# ── OS files ─────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDE ──────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.user

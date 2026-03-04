@@ -4,40 +4,41 @@ Retrieval-Augmented Generation:
 1. Embed the user query
 2. Retrieve top-K relevant chunks from FAISS
 3. Build a context-aware prompt
-4. Call Gemini (or Claude fallback) for the answer
+4. Call Claude for the answer
 5. Return answer + sources
 """
+
+from dotenv import load_dotenv
+load_dotenv()
 
 import os
 import time
 import json
+import anthropic
 from typing import List, Dict
 from datetime import datetime
 
 import numpy as np
-import google.generativeai as genai
 
 from embeddings import get_embedder, search_index, get_index_stats
 from ingest import load_chunks, load_documents
 
 # ── Config ────────────────────────────────────────────────────
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 QUERY_LOG_FILE = "osb_data/query_log.json"
 
-# Stats tracker
 _query_count = 0
 _total_time = 0.0
 
 
-# ── Gemini setup ──────────────────────────────────────────────
-def get_gemini():
-    if not GEMINI_API_KEY:
+# ── Claude setup ──────────────────────────────────────────────
+def get_claude():
+    if not ANTHROPIC_API_KEY:
         raise RuntimeError(
-            "GEMINI_API_KEY not set. Add it to your .env file.\n"
-            "Get a free key at: https://makersuite.google.com/app/apikey"
+            "ANTHROPIC_API_KEY not set. Add it to your .env file.\n"
+            "Get your key at: https://console.anthropic.com/account/keys"
         )
-    genai.configure(api_key=GEMINI_API_KEY)
-    return genai.GenerativeModel("gemini-1.5-flash")
+    return anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
 
 # ── Main RAG function ─────────────────────────────────────────
@@ -114,11 +115,15 @@ INSTRUCTIONS:
 
 ANSWER:"""
 
-    # Step 5: Call Gemini
+    # Step 5: Call Claude
     try:
-        model = get_gemini()
-        response = model.generate_content(prompt)
-        answer = response.text.strip()
+        client = get_claude()
+        message = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=1024,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        answer = message.content[0].text.strip()
     except Exception as e:
         answer = f"AI model error: {str(e)}\n\nRetrieved context:\n\n" + "\n---\n".join([r["text"] for r in retrieved[:2]])
 

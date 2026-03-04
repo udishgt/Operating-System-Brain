@@ -19,12 +19,12 @@ All processing happens **locally on your machine**. No cloud. No tracking. No su
 ## Features
 
 - **Semantic Search** — Find information using natural language, not just keywords
-- **Source Traceability** — Every answer cites exact document names and sections
-- **Multi-Format Support** — PDF, DOCX, TXT, MD, code files, entire folders
+- **Source Traceability** — Every answer cites exact document names and chunk references
+- **Multi-Format Support** — PDF, DOCX, TXT, MD, Python, JS, JSON, CSV and more
 - **Fully Private** — Nothing leaves your machine
 - **Terminal-Style UI** — Cyberpunk hacker aesthetic with live system logs
-- **Web Knowledge Mode** — Query without files using built-in AI knowledge
 - **Real-time Logs** — Live vector index stats and system monitoring
+- **REST API** — Full FastAPI backend with interactive docs at `/docs`
 
 ---
 
@@ -33,57 +33,92 @@ All processing happens **locally on your machine**. No cloud. No tracking. No su
 | Layer | Technology |
 |-------|-----------|
 | Architecture | RAG (Retrieval-Augmented Generation) |
-| Vector DB | FAISS |
-| AI Model | Gemini / Claude |
-| Backend | FastAPI (Python) |
-| Frontend | React + Vite |
-| Embeddings | all-MiniLM-L6-v2 |
+| Vector DB | FAISS (Facebook AI Similarity Search) |
+| Embeddings | all-MiniLM-L6-v2 (384 dimensions) |
+| Backend | FastAPI + Python |
+| Frontend | HTML, CSS, Vanilla JS |
+| File Parsing | PyMuPDF, python-docx |
+
+---
+
+## How It Works
+
+```
+User uploads file
+      ↓
+Text extraction (PDF/DOCX/TXT/code)
+      ↓
+Chunking (500 chars, 50 overlap)
+      ↓
+Sentence embedding (all-MiniLM-L6-v2)
+      ↓
+FAISS vector index storage
+      ↓
+User asks question
+      ↓
+Query embedding + cosine similarity search
+      ↓
+Top-K relevant chunks retrieved
+      ↓
+LLM generates answer with source citations
+```
 
 ---
 
 ## Getting Started
 
 ### Prerequisites
-- Node.js 18+
 - Python 3.10+
-- Git
+- Any LLM API key (Groq free / Anthropic / Gemini)
 
 ### Installation
 
 ```bash
 # Clone the repo
 git clone https://github.com/udishgt/Operating-System-Brain.git
-cd Operating-System-Brain
+cd Operating-System-Brain/backend
 
-# Open index.html directly in browser for the frontend demo
-# No install needed for the static version
+# Install dependencies
+pip install -r requirements.txt
+
+# Add your API key
+cp .env.example .env
+# Edit .env and add your key
+
+# Start the backend
+python main.py
 ```
 
-### Full Stack Setup (Coming Soon)
-```bash
-# Backend
-pip install fastapi uvicorn faiss-cpu sentence-transformers pypdf python-docx
+### API Endpoints
 
-# Run backend
-uvicorn main:app --reload
-
-# Frontend
-npm install
-npm run dev
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/upload` | Upload and index a document |
+| POST | `/query` | Query knowledge base with RAG |
+| GET | `/documents` | List all indexed documents |
+| DELETE | `/documents/{id}` | Remove a document |
+| GET | `/stats` | System stats and metrics |
+| GET | `/docs` | Interactive API documentation |
 
 ---
 
-## Screenshots
+## Project Structure
 
-### Home — Knowledge OS Landing
-![OSB Home](screenshots/home.png)
-
-### System Interface — AI Query
-![OSB System](screenshots/system.png)
-
-### Live System Logs
-![OSB Logs](screenshots/logs.png)
+```
+Operating-System-Brain/
+├── index.html              ← Frontend (live on GitHub Pages)
+├── README.md
+├── .gitignore
+└── backend/
+    ├── main.py             ← FastAPI server + all routes
+    ├── ingest.py           ← File parsing + chunking pipeline
+    ├── embeddings.py       ← FAISS vector store management
+    ├── rag.py              ← RAG query pipeline
+    ├── requirements.txt
+    ├── .env.example        ← API key template
+    ├── start.bat           ← Windows one-click start
+    └── start.sh            ← Mac/Linux one-click start
+```
 
 ---
 
@@ -91,11 +126,14 @@ npm run dev
 
 - [x] Frontend UI with cyberpunk aesthetic
 - [x] Interactive 3D globe with particle physics
-- [x] AI Query with file upload support
+- [x] Python FastAPI backend
+- [x] FAISS vector store integration
+- [x] Real PDF/DOCX/TXT parsing pipeline
+- [x] Semantic chunking with overlap
+- [x] RAG query pipeline with source tracing
+- [x] REST API with interactive docs
 - [x] System logs and vector index stats
-- [ ] Python FastAPI backend
-- [ ] FAISS vector store integration
-- [ ] Real PDF/DOCX parsing pipeline
+- [ ] Frontend connected to local backend
 - [ ] User authentication
 - [ ] Mobile app
 
@@ -103,9 +141,9 @@ npm run dev
 
 ## Author
 
-**Udish** — [@udishgt](https://github.com/udishgt)
+**Udish Gupta** — [@udishgt](https://github.com/udishgt)
 
-Built with OSB · Powered by RAG · Private by default
+Built with passion · Powered by RAG · Private by default
 
 ---
 
