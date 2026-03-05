@@ -475,7 +475,7 @@ footer{border-top:1px solid var(--border);padding:36px 80px;display:flex;justify
 
 <script>
 // ─── CONFIG ───────────────────────────────────────────────────
-let GROQ_API_KEY = localStorage.getItem('osb_api_key') || "";
+let GROQ_API_KEY = localStorage.getItem('osb_api_key') || localStorage.getItem('osb_groq_key') || "";
 
 // ─── CURSOR ──────────────────────────────────────────────────
 const cur = document.getElementById('cur');
