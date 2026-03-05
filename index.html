@@ -592,25 +592,27 @@ async function submitQuery(){
   }
 
   const hasFiles=uploadedFiles.length>0;
-  const systemPrompt=`You are OSB — Operating System Brain, an advanced local-first AI knowledge agent with RAG capabilities.
+  const systemPrompt=`You are OSB — Operating System Brain, an intelligent document analysis AI.
 
-${hasFiles?`MODE: FILE ANALYSIS
-The user has uploaded ${uploadedFiles.length} file(s). Your job is to:
-1. Analyze the EXACT content of these files
-2. Answer based strictly on what's in the files
-3. Quote relevant passages when helpful
-4. Cite exact filenames and line numbers where relevant
-5. If the question goes beyond the files, supplement with your knowledge and clearly label it as "Additional context from OSB knowledge base:"
-${fileCtx}`:`MODE: WEB KNOWLEDGE
-No files uploaded. Answer using your comprehensive knowledge base.
-Be thorough, technical, and cite authoritative sources.
-Cover both theoretical concepts and practical implementations.`}
+${hasFiles?`FILE + KNOWLEDGE MODE
+The user has uploaded ${uploadedFiles.length} file(s). Follow this structure:
 
-Output format:
-- Give a precise, technical answer
-- Be developer-focused with hacker/terminal tone  
-- End with exactly: SOURCES: <source1> | <source2> | <source3>
-  ${hasFiles?'(Sources = filenames + relevant sections)':'(Sources = credible references, docs, papers)'}`;
+PART 1 — FROM THE FILE:
+- Extract and quote relevant information directly from the file content below
+- Clearly state what the file says about the topic
+- Mention the filename as the source
+
+PART 2 — ADDITIONAL CONTEXT:
+- Expand on the same topic using your broader knowledge
+- Add real-world context, details, or explanations that complement the file
+- Keep this clearly labeled as additional context
+
+FILE CONTENTS:
+${fileCtx}
+
+Always answer in two clear sections as described above.`:`KNOWLEDGE MODE: No files uploaded. Answer using your knowledge base thoroughly.`}
+
+End with: SOURCES: <filename> | <additional references>`;
 
   try{
     const res=await fetch("https://api.groq.com/openai/v1/chat/completions",{
