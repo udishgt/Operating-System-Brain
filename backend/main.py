@@ -6,7 +6,7 @@ FastAPI Backend Server
 from dotenv import load_dotenv
 load_dotenv()
 
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -141,6 +141,55 @@ def delete_doc(doc_id: str):
 def stats():
     """Get system stats for the dashboard."""
     return get_system_stats()
+
+
+@app.post("/query-with-files")
+async def query_with_files(question: str = Form(...), files: List[UploadFile] = File(default=[])):
+    """Accept files + question from frontend, answer using Groq."""
+    import os
+    from groq import Groq
+
+    # Read file contents
+    file_context = ""
+    for f in files:
+        content = await f.read()
+        try:
+            text = content.decode('utf-8', errors='ignore')
+            file_context += f"\n--- FILE: {f.filename} ---\n{text[:6000]}\n--- END ---\n"
+        except:
+            file_context += f"\n--- FILE: {f.filename} --- [Could not read]\n"
+
+    system_prompt = f"""You are OSB — Operating System Brain, an intelligent document analysis AI.
+
+FILE + KNOWLEDGE MODE
+Follow this structure:
+
+PART 1 — FROM THE FILE:
+- Extract and quote relevant information directly from the file content below
+- Clearly state what the file says about the topic
+
+PART 2 — ADDITIONAL CONTEXT:
+- Expand on the same topic using your broader knowledge
+- Add real-world context and details that complement the file
+
+FILE CONTENTS:
+{file_context}"""
+
+    try:
+        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            max_tokens=1200,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": question}
+            ]
+        )
+        answer = response.choices[0].message.content
+        sources = [{"filename": f.filename} for f in files]
+        return {"answer": answer, "sources": [s["filename"] for s in sources]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":
