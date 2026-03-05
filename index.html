@@ -375,8 +375,8 @@ footer{border-top:1px solid var(--border);padding:36px 80px;display:flex;justify
     <!-- File upload strip -->
     <label class="file-drop" for="file-input" style="cursor:none;">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00ffe7" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      <input type="file" id="file-input" multiple accept=".txt,.md,.pdf,.docx,.js,.ts,.py,.json,.csv,.html,.css" onchange="handleFiles(this.files)"/>
-      <div class="file-drop-txt"><strong>Upload files</strong> to query — TXT, MD, PDF, DOCX, code files, or ask without files to use web knowledge</div>
+      <input type="file" id="file-input" multiple accept="*/*" onchange="handleFiles(this.files)"/>
+      <div class="file-drop-txt"><strong>Upload files</strong> to query — PDF, DOCX, TXT, MD, code, images, Excel, or ask without files to use web knowledge</div>
     </label>
     <div class="file-chips" id="file-chips"></div>
 
@@ -531,18 +531,28 @@ function switchTab(id,el){
 
 // ─── FILE HANDLING ───────────────────────────────────────────
 let uploadedFiles=[];
+const TEXT_EXTS=['txt','md','js','ts','py','json','csv','html','css','yaml','yml','xml','rs','go','java','cpp','c','sh'];
 function handleFiles(fileList){
   Array.from(fileList).forEach(f=>{
-    const reader=new FileReader();
-    reader.onload=e=>{
-      uploadedFiles.push({name:f.name,content:e.target.result,size:f.size});
+    const ext=f.name.split('.').pop().toLowerCase();
+    const isText=TEXT_EXTS.includes(ext);
+    if(isText){
+      const reader=new FileReader();
+      reader.onload=e=>{
+        uploadedFiles.push({name:f.name,content:e.target.result,size:f.size,isBinary:false});
+        renderChips();
+        addDocRow(f.name,ext.toUpperCase(),(f.size/1024).toFixed(0)+' KB');
+        addLog('INFO',`File loaded: ${f.name}`);
+        setTimeout(()=>addLog('SUCCESS',`Indexed ${f.name}`),600);
+      };
+      reader.readAsText(f);
+    } else {
+      // All other files (PDF, DOCX, XLSX, images, etc) — send raw to backend
+      uploadedFiles.push({name:f.name,content:'',rawFile:f,size:f.size,isBinary:true});
       renderChips();
-      addDocRow(f.name,f.name.split('.').pop().toUpperCase(),(f.size/1024).toFixed(0)+' KB');
-      document.getElementById('stat-docs').textContent=uploadedFiles.length+4;
-      addLog('INFO',`File loaded: ${f.name} (${(f.size/1024).toFixed(0)} KB)`);
-      setTimeout(()=>addLog('SUCCESS',`Indexed ${f.name} into vector store`),600);
-    };
-    reader.readAsText(f);
+      addDocRow(f.name,ext.toUpperCase(),(f.size/1024).toFixed(0)+' KB');
+      addLog('INFO',`File loaded: ${f.name} — backend will process`);
+    }
   });
 }
 function renderChips(){
@@ -623,9 +633,8 @@ End with: SOURCES: <filename> | <additional references>`;
       const formData = new FormData();
       formData.append('question', q);
       uploadedFiles.forEach(f => {
-        if(f.isBinary && f.rawData){
-          const blob = new Blob([f.rawData]);
-          formData.append('files', blob, f.name);
+        if(f.isBinary && f.rawFile){
+          formData.append('files', f.rawFile, f.name);
         } else {
           const blob = new Blob([f.content], {type:'text/plain'});
           formData.append('files', blob, f.name);

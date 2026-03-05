@@ -51,23 +51,44 @@ async def query_with_files(question: str = Form(...), files: List[UploadFile] = 
         for f in files:
             raw = await f.read()
             fname = f.filename.lower()
+            text = ""
             try:
                 if fname.endswith(".pdf"):
                     import fitz
                     doc = fitz.open(stream=raw, filetype="pdf")
                     text = "\n".join(page.get_text() for page in doc)
                     print(f"PDF extracted: {len(text)} chars")
-                elif fname.endswith(".docx"):
+                elif fname.endswith((".docx", ".doc")):
                     import docx, io
                     doc = docx.Document(io.BytesIO(raw))
                     text = "\n".join(p.text for p in doc.paragraphs if p.text.strip())
                     print(f"DOCX extracted: {len(text)} chars")
+                elif fname.endswith((".xlsx", ".xls")):
+                    # Basic Excel - extract as CSV-like text
+                    text = f"[Excel file: {f.filename} - contains spreadsheet data]"
+                    try:
+                        import zipfile, io as sio
+                        z = zipfile.ZipFile(sio.BytesIO(raw))
+                        for name in z.namelist():
+                            if name.endswith('.xml') and 'sheet' in name:
+                                xml = z.read(name).decode('utf-8', errors='ignore')
+                                import re
+                                vals = re.findall(r'<v>([^<]+)</v>', xml)
+                                text = f"[Excel data from {f.filename}]: " + ", ".join(vals[:200])
+                    except: pass
+                elif fname.endswith((".png", ".jpg", ".jpeg", ".gif", ".webp")):
+                    text = f"[Image file: {f.filename} - visual content, cannot extract text]"
+                elif fname.endswith(".csv"):
+                    text = raw.decode("utf-8", errors="ignore")[:6000]
                 else:
+                    # Try to decode as text for all other types
                     text = raw.decode("utf-8", errors="ignore")
-                    print(f"TXT read: {len(text)} chars")
+                    print(f"Text read: {len(text)} chars")
             except Exception as ex:
                 text = raw.decode("utf-8", errors="ignore")
-                print(f"Fallback to text for {f.filename}: {ex}")
+                print(f"Fallback for {f.filename}: {ex}")
+            if not text.strip():
+                text = f"[File {f.filename} could not be read or is empty]"
             file_context += f"\n--- FILE: {f.filename} ---\n{text[:6000]}\n--- END ---\n"
 
         system_prompt = f"""You are OSB — Operating System Brain.
