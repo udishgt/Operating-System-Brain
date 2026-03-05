@@ -196,6 +196,8 @@ FILE CONTENTS:
     except Exception as e:
         import traceback
         err_msg = type(e).__name__ + ": " + str(e)
+        print("ERROR in query-with-files:", err_msg)
+        print(traceback.format_exc())
         raise HTTPException(status_code=500, detail=err_msg)
 
 
