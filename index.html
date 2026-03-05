@@ -623,8 +623,13 @@ End with: SOURCES: <filename> | <additional references>`;
       const formData = new FormData();
       formData.append('question', q);
       uploadedFiles.forEach(f => {
-        const blob = new Blob([f.content], {type:'text/plain'});
-        formData.append('files', blob, f.name);
+        if(f.isBinary && f.rawData){
+          const blob = new Blob([f.rawData]);
+          formData.append('files', blob, f.name);
+        } else {
+          const blob = new Blob([f.content], {type:'text/plain'});
+          formData.append('files', blob, f.name);
+        }
       });
       const res = await fetch(`${BACKEND_URL}/query-with-files`, {method:'POST', body:formData});
       if(!res.ok) throw new Error(`Backend error: ${res.status}`);

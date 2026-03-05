@@ -50,9 +50,25 @@ async def query_with_files(question: str = Form(...), files: List[UploadFile] = 
         file_context = ""
         for f in files:
             raw = await f.read()
-            text = raw.decode("utf-8", errors="ignore")
+            fname = f.filename.lower()
+            try:
+                if fname.endswith(".pdf"):
+                    import fitz
+                    doc = fitz.open(stream=raw, filetype="pdf")
+                    text = "\n".join(page.get_text() for page in doc)
+                    print(f"PDF extracted: {len(text)} chars")
+                elif fname.endswith(".docx"):
+                    import docx, io
+                    doc = docx.Document(io.BytesIO(raw))
+                    text = "\n".join(p.text for p in doc.paragraphs if p.text.strip())
+                    print(f"DOCX extracted: {len(text)} chars")
+                else:
+                    text = raw.decode("utf-8", errors="ignore")
+                    print(f"TXT read: {len(text)} chars")
+            except Exception as ex:
+                text = raw.decode("utf-8", errors="ignore")
+                print(f"Fallback to text for {f.filename}: {ex}")
             file_context += f"\n--- FILE: {f.filename} ---\n{text[:6000]}\n--- END ---\n"
-            print(f"Read file {f.filename}: {len(text)} chars")
 
         system_prompt = f"""You are OSB — Operating System Brain.
 
