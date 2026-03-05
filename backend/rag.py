@@ -4,7 +4,7 @@ Retrieval-Augmented Generation:
 1. Embed the user query
 2. Retrieve top-K relevant chunks from FAISS
 3. Build a context-aware prompt
-4. Call Claude for the answer
+4. Call Groq LLM for the answer
 5. Return answer + sources
 """
 
@@ -14,7 +14,7 @@ load_dotenv()
 import os
 import time
 import json
-import anthropic
+from groq import Groq
 from typing import List, Dict
 from datetime import datetime
 
@@ -24,21 +24,21 @@ from embeddings import get_embedder, search_index, get_index_stats
 from ingest import load_chunks, load_documents
 
 # ── Config ────────────────────────────────────────────────────
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 QUERY_LOG_FILE = "osb_data/query_log.json"
 
 _query_count = 0
 _total_time = 0.0
 
 
-# ── Claude setup ──────────────────────────────────────────────
-def get_claude():
-    if not ANTHROPIC_API_KEY:
+# ── Groq setup ──────────────────────────────────────────────
+def get_groq():
+    if not GROQ_API_KEY:
         raise RuntimeError(
-            "ANTHROPIC_API_KEY not set. Add it to your .env file.\n"
-            "Get your key at: https://console.anthropic.com/account/keys"
+            "GROQ_API_KEY not set. Add it to your .env file.\n"
+            "Get your free key at: https://console.groq.com"
         )
-    return anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    return Groq(api_key=GROQ_API_KEY)
 
 
 # ── Main RAG function ─────────────────────────────────────────
@@ -115,15 +115,15 @@ INSTRUCTIONS:
 
 ANSWER:"""
 
-    # Step 5: Call Claude
+    # Step 5: Call Groq
     try:
-        client = get_claude()
-        message = client.messages.create(
-            model="claude-haiku-4-5-20251001",
+        client = get_groq()
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
             max_tokens=1024,
             messages=[{"role": "user", "content": prompt}]
         )
-        answer = message.content[0].text.strip()
+        answer = response.choices[0].message.content.strip()
     except Exception as e:
         answer = f"AI model error: {str(e)}\n\nRetrieved context:\n\n" + "\n---\n".join([r["text"] for r in retrieved[:2]])
 
