@@ -231,8 +231,93 @@ footer{border-top:1px solid var(--border);padding:36px 80px;display:flex;justify
 /* ANIMATIONS */
 @keyframes fup{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ═══════════════ MOBILE RESPONSIVE ═══════════════ */
+@media (max-width: 768px) {
+
+  /* NAV */
+  nav{padding:0 20px;}
+  .nav-l{gap:14px;}
+  .nav-l a{display:none;}
+  .nbtn{padding:8px 14px;font-size:10px;}
+  #modal-key-btn{padding:8px 12px;font-size:10px;}
+
+  /* HERO */
+  .hero{grid-template-columns:1fr;padding:30px 24px;min-height:auto;gap:0;text-align:center;}
+  .h-title{font-size:28px;}
+  .h-sub{font-size:12px;max-width:100%;}
+  .badges{justify-content:center;}
+  .ctas{flex-direction:column;align-items:center;}
+  .btn-p,.btn-s{width:100%;justify-content:center;}
+  .term-status{max-width:100%;}
+  #globe-wrap{display:none;}
+
+  /* TECH STRIP */
+  .tstrip{grid-template-columns:repeat(2,1fr);}
+  .ti{padding:20px 14px;}
+  .tn{font-size:16px;}
+
+  /* SECTIONS */
+  .sec{padding:50px 24px;}
+  .fgrid{grid-template-columns:1fr;}
+  .mobsec{grid-template-columns:1fr;padding:50px 24px;gap:40px;}
+  .mphone{max-width:100%;}
+  .igrid{grid-template-columns:1fr;}
+  .stitle{font-size:22px;}
+
+  /* FOOTER */
+  footer{flex-direction:column;gap:10px;text-align:center;padding:24px;}
+
+  /* SYSTEM PAGE */
+  .syshdr{padding:30px 24px 20px;}
+  .systitle{font-size:22px;}
+  .stabs{margin:0 16px;}
+  .spanel{margin:0 16px;}
+
+  /* QUERY */
+  .qrow{flex-direction:column;padding:12px 14px;gap:8px;}
+  .qinput{border-right:1px solid var(--border-b);border-bottom:none;width:100%;}
+  .qbtn{width:100%;justify-content:center;}
+  .sgrid{grid-template-columns:repeat(2,1fr);margin:12px;}
+  .logsec,.vecsec{margin:12px;}
+  .vecgrid{grid-template-columns:1fr;}
+  .file-drop{margin:12px 14px;padding:14px;}
+  .file-chips{margin:0 14px 4px;}
+  .resp-block{padding:14px 16px;}
+  .qhint{padding:5px 14px;font-size:10px;}
+
+  /* DOCS */
+  #docs{padding:40px 24px;}
+  .dgrid{grid-template-columns:1fr;}
+
+  /* MODAL */
+  .modal-box{padding:24px;margin:0 16px;}
+
+  /* LOGS */
+  .logrow{gap:8px;font-size:11px;}
+  .lt{min-width:70px;}
+  .ll{min-width:50px;}
+}
+
+@media (max-width: 480px) {
+  .h-title{font-size:22px;}
+  .tstrip{grid-template-columns:repeat(2,1fr);}
+  .ti{padding:14px 10px;}
+  .tn{font-size:14px;}
+  .sgrid{grid-template-columns:1fr 1fr;}
+  nav{padding:0 14px;}
+}
 </style>
-</head>
+
+<!-- Mobile Nav Toggle -->
+<style>
+#ham-btn{display:none;flex-direction:column;gap:5px;cursor:none;padding:8px;}
+#ham-btn span{display:block;width:22px;height:2px;background:var(--cyan);}
+#mob-menu{display:none;position:fixed;top:58px;left:0;right:0;z-index:999;background:rgba(1,8,6,.97);border-bottom:1px solid var(--border);padding:20px;}
+#mob-menu a{display:block;font-family:"Share Tech Mono",monospace;font-size:13px;letter-spacing:3px;color:var(--dim);text-decoration:none;text-transform:uppercase;padding:12px 0;border-bottom:1px solid var(--border);}
+#mob-menu a:last-child{border-bottom:none;}
+@media(max-width:768px){#ham-btn{display:flex;}}
+</style></head>
 <body>
 
 <div id="cur"></div>
@@ -240,6 +325,8 @@ footer{border-top:1px solid var(--border);padding:36px 80px;display:flex;justify
 
 <nav>
   <div class="logo">OSB</div>
+  <button id="ham-btn" onclick="toggleMobMenu()"><span></span><span></span><span></span></button>
+  <div id="mob-menu"><a href="#" onclick="showPage('home',this);toggleMobMenu()">HOME</a><a href="#" onclick="showPage('system',this);toggleMobMenu()">SYSTEM</a><a href="#" onclick="showPage('docs',this);toggleMobMenu()">DOCS</a></div>
   <div class="nav-l">
     <a href="#" class="act" onclick="showPage('home',this)">HOME</a>
     <a href="#" onclick="showPage('system',this)">SYSTEM</a>
