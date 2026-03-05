@@ -195,8 +195,8 @@ FILE CONTENTS:
         raise
     except Exception as e:
         import traceback
-        raise HTTPException(status_code=500, detail=f"{type(e).__name__}: {str(e)}
-{traceback.format_exc()}")
+        err_msg = type(e).__name__ + ": " + str(e)
+        raise HTTPException(status_code=500, detail=err_msg)
 
 
 if __name__ == "__main__":
