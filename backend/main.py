@@ -176,7 +176,10 @@ FILE CONTENTS:
 {file_context}"""
 
     try:
-        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        groq_key = os.getenv("GROQ_API_KEY")
+        if not groq_key:
+            raise HTTPException(status_code=500, detail="GROQ_API_KEY not set in environment")
+        client = Groq(api_key=groq_key)
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             max_tokens=1200,
@@ -186,10 +189,14 @@ FILE CONTENTS:
             ]
         )
         answer = response.choices[0].message.content
-        sources = [{"filename": f.filename} for f in files]
-        return {"answer": answer, "sources": [s["filename"] for s in sources]}
+        sources = [f.filename for f in files]
+        return {"answer": answer, "sources": sources}
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        import traceback
+        raise HTTPException(status_code=500, detail=f"{type(e).__name__}: {str(e)}
+{traceback.format_exc()}")
 
 
 if __name__ == "__main__":
