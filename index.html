@@ -563,6 +563,8 @@ footer{border-top:1px solid var(--border);padding:36px 80px;display:flex;justify
 <script>
 // ─── CONFIG ───────────────────────────────────────────────────
 let GROQ_API_KEY = localStorage.getItem('osb_api_key') || localStorage.getItem('osb_groq_key') || "";
+// Auto-open settings on first visit
+window.addEventListener('load', () => { if(!GROQ_API_KEY) setTimeout(openModal, 800); });
 const BACKEND_URL = "https://operating-system-brain-production.up.railway.app";
 
 // ─── CURSOR ──────────────────────────────────────────────────

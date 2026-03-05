@@ -61,8 +61,19 @@ async def query_with_files(question: str = Form(...), files: List[UploadFile] = 
                 elif fname.endswith((".docx", ".doc")):
                     import docx, io
                     doc = docx.Document(io.BytesIO(raw))
-                    text = "\n".join(p.text for p in doc.paragraphs if p.text.strip())
-                    print(f"DOCX extracted: {len(text)} chars")
+                    parts = []
+                    # Extract paragraphs
+                    for p in doc.paragraphs:
+                        if p.text.strip():
+                            parts.append(p.text.strip())
+                    # Extract tables
+                    for table in doc.tables:
+                        for row in table.rows:
+                            row_text = " | ".join(cell.text.strip() for cell in row.cells if cell.text.strip())
+                            if row_text:
+                                parts.append(row_text)
+                    text = "\n".join(parts)
+                    print(f"DOCX extracted: {len(text)} chars, {len(parts)} blocks")
                 elif fname.endswith((".xlsx", ".xls")):
                     # Basic Excel - extract as CSV-like text
                     text = f"[Excel file: {f.filename} - contains spreadsheet data]"
