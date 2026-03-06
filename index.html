@@ -562,10 +562,15 @@ footer{border-top:1px solid var(--border);padding:36px 80px;display:flex;justify
 
 <script>
 // ─── CONFIG ───────────────────────────────────────────────────
-let GROQ_API_KEY = localStorage.getItem('osb_api_key') || localStorage.getItem('osb_groq_key') || "";
-// Auto-open settings on first visit
+// ─── PASTE YOUR GROQ KEY HERE ────────────────────────────────
+const EMBEDDED_KEY = "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"; // <-- replace this
+// ─────────────────────────────────────────────────────────────
+let GROQ_API_KEY = EMBEDDED_KEY || localStorage.getItem('osb_api_key') || localStorage.getItem('osb_groq_key') || "";
+// Auto-open settings on first visit only if no embedded key
 window.addEventListener('load', () => { if(!GROQ_API_KEY) setTimeout(openSettings, 800); });
 const BACKEND_URL = "https://operating-system-brain-production.up.railway.app";
+
+function toggleMobMenu(){const m=document.getElementById("mob-menu");m.style.display=m.style.display==="block"?"none":"block";}
 
 // ─── CURSOR ──────────────────────────────────────────────────
 const cur = document.getElementById('cur');
