@@ -143,9 +143,8 @@ Operating-System-Brain/
 - [x] RAG query pipeline with source tracing
 - [x] REST API with interactive docs
 - [x] System logs and vector index stats
-- [ ] Frontend connected to local backend
-- [ ] User authentication
-- [ ] Mobile app
+- [X] Frontend connected to local backend
+- [X] Mobile app
 
 ---
 
