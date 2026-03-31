@@ -562,12 +562,6 @@ footer{border-top:1px solid var(--border);padding:36px 80px;display:flex;justify
 
 <script>
 // ─── CONFIG ───────────────────────────────────────────────────
-// ─── PASTE YOUR GROQ KEY HERE ────────────────────────────────
-const EMBEDDED_KEY = "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"; // <-- replace this
-// ─────────────────────────────────────────────────────────────
-let GROQ_API_KEY = EMBEDDED_KEY || localStorage.getItem('osb_api_key') || localStorage.getItem('osb_groq_key') || "";
-// Auto-open settings on first visit only if no embedded key
-window.addEventListener('load', () => { if(!GROQ_API_KEY) setTimeout(openSettings, 800); });
 const BACKEND_URL = "https://operating-system-brain.onrender.com";
 
 function toggleMobMenu(){const m=document.getElementById("mob-menu");m.style.display=m.style.display==="block"?"none":"block";}
@@ -592,7 +586,7 @@ function openSettings(){
   const modal=document.getElementById('settings-modal');
   modal.style.display='flex';
   const inp=document.getElementById('settings-key-input');
-  inp.value=GROQ_API_KEY||'';
+  inp.value='';
   document.getElementById('settings-status').textContent='';
 }
 function closeSettings(){
@@ -605,7 +599,6 @@ function saveApiKey(){
     document.getElementById('settings-status').textContent='> Please enter a valid API key';
     return;
   }
-  GROQ_API_KEY=key;
   localStorage.setItem('osb_api_key',key);
   document.getElementById('settings-status').style.color='var(--green)';
   document.getElementById('settings-status').textContent='> Key saved successfully!';
@@ -674,7 +667,6 @@ let queryCount=3;
 async function submitQuery(){
   const inp=document.getElementById('qinput');
   const q=inp.value.trim(); if(!q)return;
-  if(!GROQ_API_KEY){ openSettings(); return; }
   const area=document.getElementById('query-area');
   const rb=document.getElementById('resp-block');
   const rt=document.getElementById('rtext');
@@ -741,28 +733,14 @@ End with: SOURCES: <filename> | <additional references>`;
       sources = Array.isArray(data.sources) ? data.sources : [];
 
     } else {
-      // No files - use Groq directly
-      if(!GROQ_API_KEY){openSettings();return;}
-      const res = await fetch("https://api.groq.com/openai/v1/chat/completions",{
-        method:"POST",
-        headers:{"Content-Type":"application/json","Authorization":`Bearer ${GROQ_API_KEY}`},
-        body:JSON.stringify({
-          model:"llama-3.3-70b-versatile",
-          max_tokens:1200,
-          messages:[{role:"system",content:systemPrompt},{role:"user",content:q}]
-        })
-      });
-      if(!res.ok) throw new Error(`Groq error: ${res.status}`);
+      // No files - use backend /query endpoint
+      const formData = new FormData();
+      formData.append('question', q);
+      const res = await fetch(`${BACKEND_URL}/query`, {method:'POST', body:formData});
+      if(!res.ok) throw new Error(`Backend error: ${res.status}`);
       const data = await res.json();
-      if(data.error) throw new Error(data.error.message || JSON.stringify(data.error));
-      const full = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
-      if(full.includes('SOURCES:')){
-        const p = full.split('SOURCES:');
-        answer = p[0].trim();
-        sources = p[1].split('|').map(s=>s.trim()).filter(Boolean);
-      } else {
-        answer = full;
-      }
+      answer = data.answer || data.detail || 'No answer returned';
+      sources = [];
     }
 
     area.innerHTML=`<div class="qready">System ready</div><div class="qsub">${hasFiles?uploadedFiles.length+' file(s) in context':'Using web knowledge mode'}</div>`;
