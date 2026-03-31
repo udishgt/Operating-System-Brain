@@ -224,6 +224,27 @@ footer{border-top:1px solid var(--border);padding:36px 80px;display:flex;justify
 .dlink{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--cyan);text-decoration:none;text-transform:uppercase;display:flex;align-items:center;gap:7px;}
 .dlink:hover{color:#fff;}
 
+/* CHAT HISTORY */
+.chat-entry{border-bottom:1px solid var(--border);padding:20px 30px;position:relative;}
+.chat-q{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--cyan);margin-bottom:10px;display:flex;gap:8px;align-items:flex-start;}
+.chat-q::before{content:'>';color:var(--dim);flex-shrink:0;}
+.chat-a{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--text);line-height:1.8;white-space:pre-wrap;margin-bottom:10px;}
+.chat-src{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim);}
+.chat-src span{color:var(--cyan);margin-left:6px;}
+.chat-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.chat-time{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:2px;}
+.chat-actions{display:flex;gap:8px;}
+.chat-copy{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--dim);background:transparent;border:1px solid var(--border);padding:3px 10px;cursor:pointer;text-transform:uppercase;transition:all .2s;}
+.chat-copy:hover{color:var(--cyan);border-color:var(--cyan);}
+.chat-toolbar{display:flex;justify-content:space-between;align-items:center;padding:10px 30px;border-bottom:1px solid var(--border);background:var(--bg2);}
+.clear-btn{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--dim);background:transparent;border:1px solid var(--border);padding:5px 14px;cursor:pointer;text-transform:uppercase;transition:all .2s;}
+.clear-btn:hover{color:#ff4444;border-color:#ff4444;}
+.dl-btn{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--dim);background:transparent;border:1px solid var(--border);padding:5px 14px;cursor:pointer;text-transform:uppercase;transition:all .2s;}
+.dl-btn:hover{color:var(--cyan);border-color:var(--cyan);}
+.suggestions{display:flex;flex-wrap:wrap;gap:8px;padding:16px 30px;border-bottom:1px solid var(--border);}
+.sug-btn{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim);background:transparent;border:1px solid var(--border);padding:6px 14px;cursor:pointer;transition:all .2s;letter-spacing:1px;}
+.sug-btn:hover{color:var(--cyan);border-color:var(--cyan);}
+
 /* SPINNER */
 .spin{display:inline-block;width:15px;height:15px;border:2px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:rot .7s linear infinite;}
 @keyframes rot{to{transform:rotate(360deg);}}
@@ -388,7 +409,7 @@ footer{border-top:1px solid var(--border);padding:36px 80px;display:flex;justify
   <div class="tstrip">
     <div class="ti"><div class="tn">RAG</div><div class="tr">Architecture</div></div>
     <div class="ti"><div class="tn">FAISS</div><div class="tr">Vector DB</div></div>
-    <div class="ti"><div class="tn">Gemini</div><div class="tr">AI Model</div></div>
+    <div class="ti"><div class="tn">Groq</div><div class="tr">AI Model</div></div>
     <div class="ti"><div class="tn">FastAPI</div><div class="tr">Backend</div></div>
   </div>
 
@@ -434,12 +455,12 @@ footer{border-top:1px solid var(--border);padding:36px 80px;display:flex;justify
   <div class="igrid" style="border-top:1px solid var(--border);">
     <div class="icard"><div class="ititle">HOW IT WORKS</div><ul class="ilist"><li data-n="1">Upload your documents</li><li data-n="2">System indexes and vectorizes</li><li data-n="3">Ask natural language questions</li><li data-n="4">Get source-backed answers</li></ul></div>
     <div class="icard"><div class="ititle">PRIVACY</div><div class="ibody">All processing happens locally on your machine. No data is sent to external servers. Your documents remain completely private.</div></div>
-    <div class="icard"><div class="ititle">TECHNOLOGY</div><div class="tags"><span class="tag">RAG</span><span class="tag">FAISS</span><span class="tag">Gemini</span><span class="tag">FastAPI</span><span class="tag">Python</span><span class="tag">React</span></div></div>
+    <div class="icard"><div class="ititle">TECHNOLOGY</div><div class="tags"><span class="tag">RAG</span><span class="tag">FAISS</span><span class="tag">Groq</span><span class="tag">FastAPI</span><span class="tag">Python</span><span class="tag">React</span></div></div>
   </div>
 
   <footer>
     <div class="flogo">OSB</div>
-    <div class="ftext">© 2025 Operating System Brain · All processing local · No cloud · No tracking</div>
+    <div class="ftext">© 2026 Operating System Brain · All processing local · No cloud · No tracking</div>
   </footer>
 </div>
 
@@ -467,14 +488,24 @@ footer{border-top:1px solid var(--border);padding:36px 80px;display:flex;justify
     </label>
     <div class="file-chips" id="file-chips"></div>
 
-    <div id="query-area" class="qarea">
+    <div class="suggestions" id="suggestions">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:2px;align-self:center;">TRY:</span>
+      <button class="sug-btn" onclick="useSuggestion(this)">Summarize this file</button>
+      <button class="sug-btn" onclick="useSuggestion(this)">What are the key points?</button>
+      <button class="sug-btn" onclick="useSuggestion(this)">Explain this in simple terms</button>
+      <button class="sug-btn" onclick="useSuggestion(this)">List all important data</button>
+    </div>
+    <div class="chat-toolbar" id="chat-toolbar" style="display:none;">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:2px;" id="chat-count">0 MESSAGES</span>
+      <div style="display:flex;gap:8px;">
+        <button class="dl-btn" onclick="downloadChat()">↓ EXPORT</button>
+        <button class="clear-btn" onclick="clearChat()">✕ CLEAR</button>
+      </div>
+    </div>
+    <div id="chat-history" style="max-height:520px;overflow-y:auto;border-bottom:1px solid var(--border);"></div>
+    <div id="query-area" class="qarea" style="min-height:80px;padding:20px 40px;">
       <div class="qready">System ready</div>
       <div class="qsub">Upload files above or ask about any topic using web knowledge</div>
-    </div>
-    <div id="resp-block" class="resp-block">
-      <div class="rlabel">RESPONSE</div>
-      <div class="rtext" id="rtext"></div>
-      <div class="rsrc"><div class="rsrclbl"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Sources:</div><div id="rsrc-list"></div></div>
     </div>
     <div class="qrow">
       <input class="qinput" id="qinput" placeholder="Ask about your files or any topic..." />
@@ -556,7 +587,7 @@ footer{border-top:1px solid var(--border);padding:36px 80px;display:flex;justify
   </div>
   <footer>
     <div class="flogo">OSB</div>
-    <div class="ftext">© 2025 Operating System Brain · All processing local · No cloud · No tracking</div>
+    <div class="ftext">© 2026 Operating System Brain · All processing local · No cloud · No tracking</div>
   </footer>
 </div>
 
@@ -668,14 +699,10 @@ async function submitQuery(){
   const inp=document.getElementById('qinput');
   const q=inp.value.trim(); if(!q)return;
   const area=document.getElementById('query-area');
-  const rb=document.getElementById('resp-block');
-  const rt=document.getElementById('rtext');
-  const rs=document.getElementById('rsrc-list');
   const btn=document.getElementById('qbtn');
 
   area.innerHTML=`<div class="qready" style="display:flex;align-items:center;gap:11px;"><div class="spin"></div>Processing query...</div>`;
   btn.innerHTML='<div class="spin"></div>'; btn.disabled=true;
-  rb.classList.remove('show');
   addLog('INFO',`Query: "${q.substring(0,45)}..."`);
   queryCount++;
   document.getElementById('q-count').textContent=queryCount;
@@ -718,6 +745,15 @@ End with: SOURCES: <filename> | <additional references>`;
       // Send files to Python backend
       const formData = new FormData();
       formData.append('question', q);
+      // Add conversation history for multi-turn memory
+      const histEls = document.querySelectorAll('.chat-entry');
+      const history = [];
+      histEls.forEach(el=>{
+        const qEl=el.querySelector('.chat-q');
+        const aEl=el.querySelector('.chat-a');
+        if(qEl&&aEl&&aEl.textContent) history.push({q:qEl.textContent,a:aEl.textContent});
+      });
+      if(history.length>0) formData.append('history', JSON.stringify(history.slice(-3)));
       uploadedFiles.forEach(f => {
         if(f.isBinary && f.rawFile){
           formData.append('files', f.rawFile, f.name);
@@ -743,20 +779,87 @@ End with: SOURCES: <filename> | <additional references>`;
       sources = [];
     }
 
-    area.innerHTML=`<div class="qready">System ready</div><div class="qsub">${hasFiles?uploadedFiles.length+' file(s) in context':'Using web knowledge mode'}</div>`;
-    rb.classList.add('show');
-    rt.textContent='';
-    rs.innerHTML=sources.map(s=>`<div class="rsrcitem">${typeof s==='object'?s.filename||JSON.stringify(s):s}</div>`).join('');
+    // Add to chat history
+    const hist = document.getElementById('chat-history');
+    const toolbar = document.getElementById('chat-toolbar');
+    const suggestions = document.getElementById('suggestions');
+    toolbar.style.display='flex';
+    suggestions.style.display='none';
+    const now = new Date();
+    const timeStr = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0')+':'+now.getSeconds().toString().padStart(2,'0');
+    const entry = document.createElement('div');
+    entry.className = 'chat-entry';
+    const srcHtml = sources.length ? `<div class="chat-src">Sources: ${sources.map(s=>`<span>${typeof s==='object'?s.filename||JSON.stringify(s):s}</span>`).join('')}</div>` : '';
+    entry.innerHTML = `
+      <div class="chat-meta">
+        <span class="chat-time">[${timeStr}]</span>
+        <div class="chat-actions"><button class="chat-copy" onclick="copyAnswer(this)">COPY</button></div>
+      </div>
+      <div class="chat-q">${q}</div>
+      <div class="chat-a" id="chat-ans-${queryCount}"></div>
+      ${srcHtml}`;
+    hist.appendChild(entry);
+    hist.scrollTop = hist.scrollHeight;
+
+    // Update message count
+    const allEntries = hist.querySelectorAll('.chat-entry').length;
+    document.getElementById('chat-count').textContent = allEntries + ' MESSAGE' + (allEntries===1?'':'S');
+
+    // Typewriter effect on new entry
+    const ansEl = document.getElementById('chat-ans-'+queryCount);
     let i=0;
-    (function type(){if(i<answer.length){rt.textContent+=answer[i++];setTimeout(type,9);}})();
+    (function type(){if(i<answer.length){ansEl.textContent+=answer[i++];hist.scrollTop=hist.scrollHeight;setTimeout(type,9);}})();
+
+    area.innerHTML=`<div class="qready">System ready</div><div class="qsub">${hasFiles?uploadedFiles.length+' file(s) in context':'Using web knowledge mode'}</div>`;
     addLog('SUCCESS',`Answered · ${sources.length} source(s) · ${hasFiles?'file mode':'knowledge mode'}`);
 
   }catch(err){
-    area.innerHTML=`<div class="qready" style="color:#ff4444;">Error: ${err.message}</div>`;
+    area.innerHTML=`<div class="qready">System ready</div><div class="qsub" style="color:#ff4444;">Error: ${err.message}</div>`;
     addLog('WARN','Error: '+err.message);
   }
   btn.innerHTML='QUERY <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
   btn.disabled=false; inp.value='';
+}
+
+function useSuggestion(btn){
+  document.getElementById('qinput').value = btn.textContent;
+  document.getElementById('qinput').focus();
+}
+
+function copyAnswer(btn){
+  const entry = btn.closest('.chat-entry');
+  const ans = entry.querySelector('.chat-a');
+  if(ans) navigator.clipboard.writeText(ans.textContent).then(()=>{
+    btn.textContent='COPIED!';
+    setTimeout(()=>btn.textContent='COPY',1500);
+  });
+}
+
+function clearChat(){
+  document.getElementById('chat-history').innerHTML='';
+  document.getElementById('chat-toolbar').style.display='none';
+  document.getElementById('suggestions').style.display='flex';
+  document.getElementById('query-area').innerHTML='<div class="qready">System ready</div><div class="qsub">Upload files above or ask about any topic using web knowledge</div>';
+  addLog('INFO','Chat history cleared');
+}
+
+function downloadChat(){
+  const entries = document.querySelectorAll('.chat-entry');
+  let txt = 'OSB — Operating System Brain\nChat Export\n'+'='.repeat(40)+'\n\n';
+  entries.forEach((e,i)=>{
+    const q = e.querySelector('.chat-q');
+    const a = e.querySelector('.chat-a');
+    const t = e.querySelector('.chat-time');
+    if(q&&a){
+      txt += `[${i+1}] ${t?t.textContent:''} Q: ${q.textContent}\n\nA: ${a.textContent}\n\n${'─'.repeat(40)}\n\n`;
+    }
+  });
+  const blob = new Blob([txt],{type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='osb-chat-export.txt'; a.click();
+  URL.revokeObjectURL(url);
+  addLog('INFO','Chat exported');
 }
 
 function addLog(level,msg){
