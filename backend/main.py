@@ -177,7 +177,7 @@ async def query_with_files(
                 b64 = parts[1]
                 image_files.append({"filename": f.filename, "mime": mime, "b64": b64})
             else:
-                file_context += f"\n--- FILE: {f.filename} ---\n{text[:8000]}\n--- END ---\n"
+                file_context += f"\n--- FILE: {f.filename} ---\n{text[:30000]}\n--- END ---\n"
 
         # Build system prompt
         system_prompt = """You are OSB — Operating System Brain, an intelligent document analysis AI.
@@ -195,22 +195,28 @@ Add real-world context and details that complement the file."""
 
         # Handle images with vision model
         if image_files:
-            user_content = [{"type": "text", "text": question}]
+            # Groq vision model - combine text + images in user message
+            # Note: vision model works best without system prompt
+            vision_text = f"You are OSB — Operating System Brain. Analyze these images and answer: {question}\n\nFor each image, describe what you see in detail and extract any text, data, or information visible."
+            user_content = [{"type": "text", "text": vision_text}]
             for img in image_files:
                 user_content.append({
                     "type": "image_url",
                     "image_url": {"url": f"data:{img['mime']};base64,{img['b64']}"}
                 })
-            messages_with_sys = [{"role": "system", "content": system_prompt}] + messages + [{"role": "user", "content": user_content}]
+            # Vision model uses no system message - put everything in user turn
+            vision_messages = messages + [{"role": "user", "content": user_content}]
             try:
+                print(f"Using vision model for {len(image_files)} image(s)")
                 response = client.chat.completions.create(
                     model="llama-3.2-11b-vision-preview",
-                    max_tokens=1200,
-                    messages=messages_with_sys
+                    max_tokens=1500,
+                    messages=vision_messages
                 )
-            except Exception:
-                # Fallback to text model with image description
-                fallback_msgs = [{"role": "system", "content": system_prompt}] + messages + [{"role": "user", "content": f"{question}\n[Image file uploaded: {', '.join(img['filename'] for img in image_files)}]"}]
+                print("Vision model success")
+            except Exception as ve:
+                print(f"Vision model failed: {ve}, falling back to text")
+                fallback_msgs = [{"role": "system", "content": system_prompt}] + messages + [{"role": "user", "content": f"{question}\n[Images uploaded: {', '.join(img['filename'] for img in image_files)}]"}]
                 response = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
                     max_tokens=1200,

@@ -252,6 +252,34 @@ footer{border-top:1px solid var(--border);padding:36px 80px;display:flex;justify
 /* ANIMATIONS */
 @keyframes fup{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes countUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes glitch{
+  0%,100%{transform:translate(0)}
+  20%{transform:translate(-2px,1px)}
+  40%{transform:translate(2px,-1px)}
+  60%{transform:translate(-1px,2px)}
+  80%{transform:translate(1px,-2px)}
+}
+
+/* PAGE TRANSITION */
+.page{transition:opacity .35s ease, transform .35s ease;}
+.page-exit{opacity:0;transform:translateY(12px);pointer-events:none;}
+.page-enter{animation:pageIn .4s ease forwards;}
+@keyframes pageIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* SCROLL REVEAL */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .6s ease, transform .6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.reveal-delay-1{transition-delay:.1s;}
+.reveal-delay-2{transition-delay:.2s;}
+.reveal-delay-3{transition-delay:.3s;}
+.reveal-delay-4{transition-delay:.4s;}
+.reveal-delay-5{transition-delay:.5s;}
+
+/* TECH STRIP STAGGER */
+.ti{opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease;}
+.ti.visible{opacity:1;transform:translateY(0);}
 
 /* ═══════════════ MOBILE RESPONSIVE ═══════════════ */
 @media (max-width: 768px) {
@@ -414,24 +442,24 @@ footer{border-top:1px solid var(--border);padding:36px 80px;display:flex;justify
   </div>
 
   <section class="sec">
-    <div class="slabel">CORE FEATURES</div>
-    <h2 class="stitle">A Full Knowledge<br>Operating System</h2>
+    <div class="slabel reveal">CORE FEATURES</div>
+    <h2 class="stitle reveal reveal-delay-1">A Full Knowledge<br>Operating System</h2>
     <p class="sdesc">OSB is powered by a modern AI stack combining Retrieval-Augmented Generation (RAG), vector similarity search, semantic embeddings, and local document indexing.</p>
     <div class="fgrid">
-      <div class="fcard"><div class="ficon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div><div class="ftitle">Semantic Search</div><div class="fdesc">Find information using natural language, not keywords. The system understands meaning and context.</div></div>
-      <div class="fcard"><div class="ficon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="ftitle">Source Traceability</div><div class="fdesc">Every answer includes exact document sources and page numbers. Full transparency.</div></div>
-      <div class="fcard"><div class="ficon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 9 5 5m0-5-5 5"/></svg></div><div class="ftitle">Multi-Format Support</div><div class="fdesc">Ingest PDF, DOCX, TXT, MD, code files and entire folders into your knowledge base.</div></div>
-      <div class="fcard"><div class="ficon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="ftitle">Fully Private</div><div class="fdesc">All processing happens locally on your machine. No data sent to external servers ever.</div></div>
-      <div class="fcard"><div class="ficon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div><div class="ftitle">Terminal Interface</div><div class="fdesc">Command-line inspired UX for power users who prefer keyboard-first interactions.</div></div>
-      <div class="fcard"><div class="ficon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="ftitle">Session Memory</div><div class="fdesc">OSB maintains conversation context during sessions for multi-turn exploration.</div></div>
+      <div class="fcard reveal reveal-delay-1"><div class="ficon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div><div class="ftitle">Semantic Search</div><div class="fdesc">Find information using natural language, not keywords. The system understands meaning and context.</div></div>
+      <div class="fcard reveal reveal-delay-2"><div class="ficon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="ftitle">Source Traceability</div><div class="fdesc">Every answer includes exact document sources and page numbers. Full transparency.</div></div>
+      <div class="fcard reveal reveal-delay-3"><div class="ficon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 9 5 5m0-5-5 5"/></svg></div><div class="ftitle">Multi-Format Support</div><div class="fdesc">Ingest PDF, DOCX, TXT, MD, code files and entire folders into your knowledge base.</div></div>
+      <div class="fcard reveal reveal-delay-4"><div class="ficon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="ftitle">Fully Private</div><div class="fdesc">All processing happens locally on your machine. No data sent to external servers ever.</div></div>
+      <div class="fcard reveal reveal-delay-5"><div class="ficon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div><div class="ftitle">Terminal Interface</div><div class="fdesc">Command-line inspired UX for power users who prefer keyboard-first interactions.</div></div>
+      <div class="fcard reveal reveal-delay-1"><div class="ficon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="ftitle">Session Memory</div><div class="fdesc">OSB maintains conversation context during sessions for multi-turn exploration.</div></div>
     </div>
   </section>
 
   <div class="mobsec">
     <div>
-      <div class="slabel">MOBILE EXTENSION</div>
+      <div class="slabel reveal">MOBILE EXTENSION</div>
       <h2 class="stitle">Your Knowledge,<br>Anywhere</h2>
-      <p class="sdesc" style="margin-bottom:28px;">OSB extends beyond desktop into mobile environments, allowing you to interact with your personal knowledge base on the go. Same cyberpunk aesthetic, same power.</p>
+      <p class="sdesc reveal reveal-delay-2" style="margin-bottom:28px;">OSB extends beyond desktop into mobile environments, allowing you to interact with your personal knowledge base on the go. Same cyberpunk aesthetic, same power.</p>
       <ul class="ilist">
         <li data-n="01">Terminal-style interface optimized for mobile</li>
         <li data-n="02">Access indexed notes and documents anywhere</li>
@@ -453,9 +481,9 @@ footer{border-top:1px solid var(--border);padding:36px 80px;display:flex;justify
   </div>
 
   <div class="igrid" style="border-top:1px solid var(--border);">
-    <div class="icard"><div class="ititle">HOW IT WORKS</div><ul class="ilist"><li data-n="1">Upload your documents</li><li data-n="2">System indexes and vectorizes</li><li data-n="3">Ask natural language questions</li><li data-n="4">Get source-backed answers</li></ul></div>
-    <div class="icard"><div class="ititle">PRIVACY</div><div class="ibody">All processing happens locally on your machine. No data is sent to external servers. Your documents remain completely private.</div></div>
-    <div class="icard"><div class="ititle">TECHNOLOGY</div><div class="tags"><span class="tag">RAG</span><span class="tag">FAISS</span><span class="tag">Groq</span><span class="tag">FastAPI</span><span class="tag">Python</span><span class="tag">React</span></div></div>
+    <div class="icard reveal reveal-delay-1"><div class="ititle">HOW IT WORKS</div><ul class="ilist"><li data-n="1">Upload your documents</li><li data-n="2">System indexes and vectorizes</li><li data-n="3">Ask natural language questions</li><li data-n="4">Get source-backed answers</li></ul></div>
+    <div class="icard reveal reveal-delay-2"><div class="ititle">PRIVACY</div><div class="ibody">All processing happens locally on your machine. No data is sent to external servers. Your documents remain completely private.</div></div>
+    <div class="icard reveal reveal-delay-3"><div class="ititle">TECHNOLOGY</div><div class="tags"><span class="tag">RAG</span><span class="tag">FAISS</span><span class="tag">Groq</span><span class="tag">FastAPI</span><span class="tag">Python</span><span class="tag">React</span></div></div>
   </div>
 
   <footer>
@@ -597,7 +625,56 @@ const BACKEND_URL = "https://operating-system-brain.onrender.com";
 
 function toggleMobMenu(){const m=document.getElementById("mob-menu");m.style.display=m.style.display==="block"?"none":"block";}
 
-// ─── CURSOR ──────────────────────────────────────────────────
+// ─── SCROLL REVEAL ───────────────────────────────────────────
+function initReveal(){
+  const els = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});
+  },{threshold:0.12});
+  els.forEach(el=>obs.observe(el));
+
+  // Tech strip stagger
+  const tis = document.querySelectorAll('.ti');
+  const tiObs = new IntersectionObserver((entries)=>{
+    entries.forEach((e,i)=>{
+      if(e.isIntersecting){
+        setTimeout(()=>e.target.classList.add('visible'), i*120);
+        tiObs.unobserve(e.target);
+      }
+    });
+  },{threshold:0.2});
+  tis.forEach(ti=>tiObs.observe(ti));
+}
+window.addEventListener('load', initReveal);
+
+// ─── STAT COUNTER ─────────────────────────────────────────────
+function animateCounter(el, target, duration=1200){
+  const start = performance.now();
+  const update = (time) => {
+    const progress = Math.min((time-start)/duration, 1);
+    const ease = 1-Math.pow(1-progress,3);
+    el.textContent = Math.floor(ease*target);
+    if(progress<1) requestAnimationFrame(update);
+    else el.textContent = target;
+  };
+  requestAnimationFrame(update);
+}
+const statObs = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const el = e.target;
+      const val = parseInt(el.dataset.target||el.textContent);
+      if(!isNaN(val)) animateCounter(el, val);
+      statObs.unobserve(el);
+    }
+  });
+},{threshold:0.5});
+document.querySelectorAll('.sc-val,.tn').forEach(el=>{
+  el.dataset.target = el.textContent;
+  statObs.observe(el);
+});
+
+// ─── CURSOR ───────────────────────────────────────────────────
 const cur = document.getElementById('cur');
 const curR = document.getElementById('cur-r');
 let mx=0,my=0,rx=0,ry=0;
@@ -606,11 +683,24 @@ document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.le
 
 // ─── NAV ─────────────────────────────────────────────────────
 function showPage(id,el){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('act'));
-  document.querySelectorAll('.nav-l a').forEach(a=>a.classList.remove('act'));
-  document.getElementById(id).classList.add('act');
-  if(el&&el.tagName==='A') el.classList.add('act');
-  window.scrollTo(0,0);
+  const current = document.querySelector('.page.act');
+  if(current){
+    current.classList.add('page-exit');
+    setTimeout(()=>{
+      document.querySelectorAll('.page').forEach(p=>{p.classList.remove('act');p.classList.remove('page-exit');});
+      document.querySelectorAll('.nav-l a').forEach(a=>a.classList.remove('act'));
+      const next = document.getElementById(id);
+      next.classList.add('act','page-enter');
+      setTimeout(()=>next.classList.remove('page-enter'),400);
+      if(el&&el.tagName==='A') el.classList.add('act');
+      window.scrollTo(0,0);
+      initReveal();
+    },200);
+  } else {
+    document.getElementById(id).classList.add('act');
+    if(el&&el.tagName==='A') el.classList.add('act');
+    window.scrollTo(0,0);
+  }
 }
 // ─── SETTINGS MODAL ──────────────────────────────────────────
 function openSettings(){
